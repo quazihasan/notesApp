@@ -23,6 +23,21 @@ var NotesApp = (function(){
 
 	})
 
+	var NoteList = Backbone.Collection.extend({
+		//collection is composed of note objects.
+		model: Note,
+		localStorage: App.stores.notes,
+		initialize: function(){
+			var collection = this;
+
+			// When localStorage updates, fetch data from the store.
+			this.localStorage.bind('update', function(){
+				collection.fetch();
+
+			})
+		}
+	})
+
 	//Views
 	var NewFormView = Backbone.View.extend({
 		
@@ -37,6 +52,19 @@ var NotesApp = (function(){
 
 			note.set(attrs);
 			note.save();
+
+			//Stop browser from actually submitting the form
+			e.preventDefault();
+
+			//Stop jQuery mobile from doing its form magic.
+			e.stopPropagation();
+
+			//Close
+
+			$('.ui-dialog').dialog('close');
+			this.reset();
+
+
 		},
 
 		getAttributes: function(){
@@ -44,6 +72,10 @@ var NotesApp = (function(){
 				title: this.$('form [name=title]').val(),
 				body: this.$('form [name=body]').val()
 			}
+		},
+
+		reset: function(){
+			this.$('input, textarea').val('');
 		}
 	})
 
